@@ -1,0 +1,28 @@
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 2rem 4rem;
+    z-index: 1000;
+  }
+  
+  .brand-name {
+    font-size: 1.5rem;
+    font-weight: 900;
+    letter-spacing: 0.1em;
+    color: #f0f0f0;
+    margin: 0;
+  }
+  
+  .twitter-link {
+    color: #f0f0f0;
+    transition: color 0.3s ease;
+  }
+  
+  .twitter-link:hover {
+    color: #66b2ff;
+  }
