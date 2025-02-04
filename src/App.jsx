@@ -1,10 +1,17 @@
-import LandingPage from './pages/LandingPage'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LandingPage from './pages/LandingPage';
+import AppPage from './pages/AppPage/AppPage';
+import './App.css';
 
 function App() {
   return (
-    <LandingPage />
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/app" element={<AppPage />} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;

@@ -2,9 +2,11 @@ import React, { useEffect, useState } from 'react';
 import './LandingPage.css';
 import Header from '../components/Header';
 import backgroundGif from '../assets/giphy.gif'; // Import the GIF
+import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -37,7 +39,9 @@ const LandingPage = () => {
           Analyze crypto social sentiment and automate your Twitter presence with AI. 
           Deploy intelligent agents that understand market metrics and engage authentically.
         </p>
-        <button className="hero-button">Launch App</button>
+        <button className="hero-button" onClick={() => navigate('/app')}>
+          Launch App
+        </button>
         <span className="powered-by">powered by cookie.fun</span>
       </section>
 

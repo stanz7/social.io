@@ -1,13 +1,16 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import { TwitterLogo } from '@phosphor-icons/react';
 import './Header.css';
 
 const Header = () => {
   return (
     <header className="header">
-      <h1 className="brand-name">SOCIAL.IO</h1>
+      <Link to="/" className="brand-link">
+        <h1 className="brand-name">SOCIAL.IO</h1>
+      </Link>
       <a 
-        href="https://twitter.com/socialfy" 
+        href="https://twitter.com/socialio_ai" 
         target="_blank" 
         rel="noopener noreferrer"
         className="twitter-link"
