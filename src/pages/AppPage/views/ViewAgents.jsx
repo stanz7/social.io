@@ -8,7 +8,9 @@ import {
   CaretLeft, 
   CaretRight, 
   Copy, 
-  CheckCircle 
+  CheckCircle,
+  CaretUp,
+  CaretDown 
 } from '@phosphor-icons/react';
 import './ViewAgents.css';
 
@@ -19,6 +21,10 @@ const ViewAgents = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [pageInput, setPageInput] = useState('');
+  const [sortConfig, setSortConfig] = useState({
+    key: 'mindshare',
+    direction: 'desc'
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -72,6 +78,20 @@ const ViewAgents = () => {
     }
   };
 
+  const handleSort = (key) => {
+    setSortConfig((prevSort) => ({
+      key,
+      direction: prevSort.key === key && prevSort.direction === 'asc' ? 'desc' : 'asc'
+    }));
+  };
+
+  const sortedAgents = [...agents].sort((a, b) => {
+    if (sortConfig.direction === 'asc') {
+      return a[sortConfig.key] > b[sortConfig.key] ? 1 : -1;
+    }
+    return a[sortConfig.key] < b[sortConfig.key] ? 1 : -1;
+  });
+
   const renderPageNumbers = () => {
     const pages = [];
     let start = Math.max(1, currentPage - 2);
@@ -117,75 +137,138 @@ const ViewAgents = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <div className="loading-container">
+        <div className="spinner"></div>
+        <div className="loading-text">
+          Loading agent rankings
+          <span className="dot-animation">...</span>
+        </div>
+      </div>
+    );
   }
 
   return (
     <div className="app-page">
       <h1 className="title">Agent Mindshare Rankings</h1>
-      <div className="agents-grid">
-        {agents.map((agent) => (
-          <div key={agent.agentName} className="agent-card">
-            <div className="agent-header">
-              <h2>{agent.agentName}</h2>
-              <div className="mindshare-badge">
-                {agent.mindshare.toFixed(2)}%
-                <span className={`delta ${agent.mindshareDeltaPercent > 0 ? 'positive' : 'negative'}`}>
-                  {agent.mindshareDeltaPercent > 0 ? <ArrowUp weight="bold" /> : <ArrowDown weight="bold" />}
-                  {Math.abs(agent.mindshareDeltaPercent).toFixed(2)}%
-                </span>
-              </div>
-            </div>
-            <div className="metrics">
-              <div className="metric">
-                <label><Users size={14} weight="bold" /> Followers</label>
-                <span>{agent.followersCount.toLocaleString()}</span>
-              </div>
-              <div className="metric">
-                <label><Brain size={14} weight="bold" /> Smart Followers</label>
-                <span>{agent.smartFollowersCount.toLocaleString()}</span>
-              </div>
-              <div className="metric">
-                <label>Market Cap</label>
-                <div className="value-with-delta">
-                  <span>${(agent.marketCap / 1000000).toFixed(2)}M</span>
-                  <span className={`delta-small ${agent.marketCapDeltaPercent > 0 ? 'positive' : 'negative'}`}>
-                    {agent.marketCapDeltaPercent > 0 ? '↑' : '↓'} 
-                    {Math.abs(agent.marketCapDeltaPercent).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-              <div className="metric">
-                <label>Price</label>
-                <span>${agent.price.toFixed(6)}</span>
-              </div>
-              <div className="metric">
-                <label>Volume 24h</label>
-                <div className="value-with-delta">
-                  <span>${(agent.volume24Hours / 1000000).toFixed(2)}M</span>
-                  <span className={`delta-small ${agent.volume24HoursDeltaPercent > 0 ? 'positive' : 'negative'}`}>
-                    {agent.volume24HoursDeltaPercent > 0 ? '↑' : '↓'} 
-                    {Math.abs(agent.volume24HoursDeltaPercent).toFixed(2)}%
-                  </span>
-                </div>
-              </div>
-            </div>
-            {agent.contracts && agent.contracts[0] && (
-              <button 
-                className={`copy-button ${copiedStates[agent.agentName] ? 'copied' : ''}`}
-                onClick={() => handleCopy(agent.contracts[0].contractAddress, agent.agentName)}
-              >
-                {copiedStates[agent.agentName] ? (
-                  <><CheckCircle size={16} weight="bold" /> Copied!</>
-                ) : (
-                  <><Copy size={16} weight="bold" /> Copy CA</>
-                )}
-              </button>
-            )}
-          </div>
-        ))}
-      </div>
       
+      <div className="table-container">
+        <table className="agents-table">
+          <thead>
+            <tr>
+              <th onClick={() => handleSort('agentName')}>
+                Agent Name
+                {sortConfig.key === 'agentName' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th onClick={() => handleSort('mindshare')}>
+                Mindshare
+                {sortConfig.key === 'mindshare' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th onClick={() => handleSort('followersCount')}>
+                Followers
+                {sortConfig.key === 'followersCount' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th onClick={() => handleSort('smartFollowersCount')}>
+                Smart Followers
+                {sortConfig.key === 'smartFollowersCount' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th onClick={() => handleSort('marketCap')}>
+                Market Cap
+                {sortConfig.key === 'marketCap' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th onClick={() => handleSort('price')}>
+                Price
+                {sortConfig.key === 'price' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th onClick={() => handleSort('volume24Hours')}>
+                Volume 24h
+                {sortConfig.key === 'volume24Hours' && (
+                  <span className="sort-icon">
+                    {sortConfig.direction === 'asc' ? <CaretUp /> : <CaretDown />}
+                  </span>
+                )}
+              </th>
+              <th>Contract</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedAgents.map((agent) => (
+              <tr key={agent.agentName}>
+                <td>{agent.agentName}</td>
+                <td>
+                  <div className="mindshare-cell">
+                    {agent.mindshare.toFixed(2)}%
+                    <span className={`delta ${agent.mindshareDeltaPercent > 0 ? 'positive' : 'negative'}`}>
+                      {agent.mindshareDeltaPercent > 0 ? <ArrowUp weight="bold" /> : <ArrowDown weight="bold" />}
+                      {Math.abs(agent.mindshareDeltaPercent).toFixed(2)}%
+                    </span>
+                  </div>
+                </td>
+                <td>{agent.followersCount.toLocaleString()}</td>
+                <td>{agent.smartFollowersCount.toLocaleString()}</td>
+                <td>
+                  <div className="metric-cell">
+                    ${(agent.marketCap / 1000000).toFixed(2)}M
+                    <span className={`delta-small ${agent.marketCapDeltaPercent > 0 ? 'positive' : 'negative'}`}>
+                      {agent.marketCapDeltaPercent > 0 ? '↑' : '↓'} 
+                      {Math.abs(agent.marketCapDeltaPercent).toFixed(2)}%
+                    </span>
+                  </div>
+                </td>
+                <td>${agent.price.toFixed(6)}</td>
+                <td>
+                  <div className="metric-cell">
+                    ${(agent.volume24Hours / 1000000).toFixed(2)}M
+                    <span className={`delta-small ${agent.volume24HoursDeltaPercent > 0 ? 'positive' : 'negative'}`}>
+                      {agent.volume24HoursDeltaPercent > 0 ? '↑' : '↓'} 
+                      {Math.abs(agent.volume24HoursDeltaPercent).toFixed(2)}%
+                    </span>
+                  </div>
+                </td>
+                <td>
+                  {agent.contracts && agent.contracts[0] && (
+                    <button 
+                      className={`copy-button-small ${copiedStates[agent.agentName] ? 'copied' : ''}`}
+                      onClick={() => handleCopy(agent.contracts[0].contractAddress, agent.agentName)}
+                    >
+                      {copiedStates[agent.agentName] ? (
+                        <><CheckCircle size={14} weight="bold" /></>
+                      ) : (
+                        <><Copy size={14} weight="bold" /></>
+                      )}
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
       <div className="pagination">
         <button 
           className="pagination-button"
