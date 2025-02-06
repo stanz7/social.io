@@ -72,6 +72,17 @@ const AnalyzeAgent = () => {
   };
 
   const renderMetricsCard = (data) => {
+    if (!data?.contract_data?.ok) {
+      return (
+        <div className="metrics-card error">
+          <div className="metrics-header">
+            <h2>Error Loading Agent Data, please reference agents on cookie.fun</h2>
+            <p>{data?.error || 'Unable to fetch agent metrics'}</p>
+          </div>
+        </div>
+      );
+    }
+
     const metrics = data.contract_data.ok;
     return (
       <div className="metrics-card">
@@ -170,6 +181,10 @@ const AnalyzeAgent = () => {
     try {
       const response = await fetch(`https://socialio-backend-d9b3a48643a2.herokuapp.com/analyze/contract/${input}`);
       const data = await response.json();
+
+      if (!data?.contract_data?.ok) {
+        throw new Error(data.error || 'Invalid contract address or agent not found');
+      }
 
       setHistory(prev => [...prev, { 
         type: 'analysis', 
