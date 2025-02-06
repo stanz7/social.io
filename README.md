@@ -1,8 +1,22 @@
-# React + Vite
+Cookie DAO 2025 DeFAI Hackathon Participant:
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Social.io is a platform for analyzing and deploying AI agents on the blockchain.
 
-Currently, two official plugins are available:
+To clone this repository run:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+```bash
+git clone https://github.com/social-io/social.io.git
+```
+
+To install the dependencies, run:
+
+```bash
+npm install
+```
+
+To run the project, navigate to the project directory and run:
+
+```bash
+npm run dev
+```
+
