@@ -168,7 +168,7 @@ const AnalyzeAgent = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`http://127.0.0.1:5000/analyze/contract/${input}`);
+      const response = await fetch(`https://socialio-backend-d9b3a48643a2.herokuapp.com/analyze/contract/${input}`);
       const data = await response.json();
 
       setHistory(prev => [...prev, { 

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './DeployAgent.css';
 
-const BASE_URL = 'http://127.0.0.1:5000';
+const BASE_URL = 'https://socialio-backend-d9b3a48643a2.herokuapp.com/';
 
 const DeployAgent = () => {
   const [activeTab, setActiveTab] = useState('credentials');

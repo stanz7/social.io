@@ -30,7 +30,7 @@ const ViewAgents = () => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`http://127.0.0.1:5000/agents/mindsharePaged?page=${currentPage}`);
+        const response = await axios.get(`https://socialio-backend-d9b3a48643a2.herokuapp.com/agents/mindsharePaged?page=${currentPage}`);
         if (response.data.success) {
           setAgents(response.data.ok.data);
           setTotalPages(response.data.ok.totalPages);
