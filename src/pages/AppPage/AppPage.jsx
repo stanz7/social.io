@@ -29,7 +29,7 @@ const AppPage = () => {
   };
 
   return (
-    <div className="app-page">
+    <div className={`app-page ${activeTab === 'deploy' ? 'deploy-view' : ''}`}>
       <div className="background-container"></div>
       <div className="background-overlay"></div>
       
@@ -49,9 +49,13 @@ const AppPage = () => {
           ))}
         </div>
         
-        <div className={`content-container ${activeTab === 'analyze' ? 'analyze-view' : ''}`}>
-          {renderContent()}
-        </div>
+        {activeTab === 'deploy' ? (
+          renderContent()
+        ) : (
+          <div className={`content-container ${activeTab === 'analyze' ? 'analyze-view' : ''}`}>
+            {renderContent()}
+          </div>
+        )}
       </main>
 
       <footer className="footer">

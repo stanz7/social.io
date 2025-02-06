@@ -17,6 +17,11 @@ const DeployAgent = () => {
     interval_hours: 1
   });
   const [status, setStatus] = useState('');
+  const [verificationStatus, setVerificationStatus] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [isScheduling, setIsScheduling] = useState(false);
+  const [credentialsStatus, setCredentialsStatus] = useState('');
+  const [actionsStatus, setActionsStatus] = useState('');
 
   const handleCredsChange = (e) => {
     setTwitterCreds({
@@ -40,16 +45,20 @@ const DeployAgent = () => {
         body: JSON.stringify(twitterCreds)
       });
       const data = await response.json();
-      setStatus(data.success ? `Verified as @${data.username}` : `Error: ${data.error}`);
       if (data.success) {
+        setVerificationStatus(`Verified as @${data.username}`);
+        setCredentialsStatus('');
         setActiveTab('actions');
+      } else {
+        setCredentialsStatus(`Error: ${data.error}`);
       }
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setCredentialsStatus(`Error: ${error.message}`);
     }
   };
 
   const generateTweet = async () => {
+    setIsGenerating(true);
     try {
       const response = await fetch(`${BASE_URL}/generate_and_post_tweet`, {
         method: 'POST',
@@ -57,13 +66,16 @@ const DeployAgent = () => {
         body: JSON.stringify(twitterCreds)
       });
       const data = await response.json();
-      setStatus(data.success ? `Tweet posted: ${data.tweet}` : `Error: ${data.error}`);
+      setActionsStatus(data.success ? `Tweet posted: ${data.tweet}` : `Error: ${data.error}`);
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setActionsStatus(`Error: ${error.message}`);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   const scheduleTweets = async () => {
+    setIsScheduling(true);
     try {
       const response = await fetch(`${BASE_URL}/schedule_tweets`, {
         method: 'POST',
@@ -74,9 +86,11 @@ const DeployAgent = () => {
         })
       });
       const data = await response.json();
-      setStatus(data.success ? `Schedule created: ${data.job_id}` : `Error: ${data.error}`);
+      setActionsStatus(data.success ? `Schedule created: ${data.job_id}` : `Error: ${data.error}`);
     } catch (error) {
-      setStatus(`Error: ${error.message}`);
+      setActionsStatus(`Error: ${error.message}`);
+    } finally {
+      setIsScheduling(false);
     }
   };
 
@@ -97,55 +111,143 @@ const DeployAgent = () => {
             <span className="toggle-label right">Actions</span>
           </label>
         </div>
+        {verificationStatus && (
+          <div className="verification-status">{verificationStatus}</div>
+        )}
       </div>
 
       <div className="tab-content">
         <div className={`tab-panel ${activeTab === 'credentials' ? 'active' : ''}`}>
           <div className="credentials-section">
             <h3>Twitter Credentials</h3>
+            <div className="section-description">
+              Enter your Twitter API credentials to enable the AI agent to post tweets on your behalf.
+            </div>
             <div className="form-group">
-              <input type="text" name="api_key" placeholder="API Key" value={twitterCreds.api_key} onChange={handleCredsChange} />
-              <input type="text" name="api_secret" placeholder="API Secret" value={twitterCreds.api_secret} onChange={handleCredsChange} />
-              <input type="text" name="access_token" placeholder="Access Token" value={twitterCreds.access_token} onChange={handleCredsChange} />
-              <input type="text" name="access_secret" placeholder="Access Secret" value={twitterCreds.access_secret} onChange={handleCredsChange} />
-              <input type="text" name="bearer_token" placeholder="Bearer Token" value={twitterCreds.bearer_token} onChange={handleCredsChange} />
+              <div className="input-group">
+                <label>API Key</label>
+                <input 
+                  type="text" 
+                  name="api_key" 
+                  placeholder="Enter your API key" 
+                  value={twitterCreds.api_key} 
+                  onChange={handleCredsChange} 
+                />
+              </div>
+
+              <div className="input-group">
+                <label>API Secret</label>
+                <input 
+                  type="text" 
+                  name="api_secret" 
+                  placeholder="Enter your API secret" 
+                  value={twitterCreds.api_secret} 
+                  onChange={handleCredsChange} 
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Access Token</label>
+                <input 
+                  type="text" 
+                  name="access_token" 
+                  placeholder="Enter your access token" 
+                  value={twitterCreds.access_token} 
+                  onChange={handleCredsChange} 
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Access Secret</label>
+                <input 
+                  type="text" 
+                  name="access_secret" 
+                  placeholder="Enter your access token secret" 
+                  value={twitterCreds.access_secret} 
+                  onChange={handleCredsChange} 
+                />
+              </div>
+
+              <div className="input-group">
+                <label>Bearer Token</label>
+                <input 
+                  type="text" 
+                  name="bearer_token" 
+                  placeholder="Enter your bearer token" 
+                  value={twitterCreds.bearer_token} 
+                  onChange={handleCredsChange} 
+                />
+              </div>
+
               <button onClick={verifyCredentials}>Verify & Continue</button>
             </div>
+            {credentialsStatus && <div className="status-message">{credentialsStatus}</div>}
           </div>
         </div>
 
         <div className={`tab-panel ${activeTab === 'actions' ? 'active' : ''}`}>
           <div className="actions-section">
             <h3>Tweet Actions</h3>
-            <button onClick={generateTweet}>Generate & Post Single Tweet</button>
+            
+            <div className="single-tweet-section">
+              <div className="section-description">
+                Generate and post a single tweet using AI & cookie.fun mindshare metrics. This will immediately create and post a tweet to your account.
+              </div>
+              <button 
+                onClick={generateTweet} 
+                disabled={isGenerating}
+              >
+                {isGenerating ? 'Generating...' : 'Generate & Post Single Tweet'}
+              </button>
+            </div>
             
             <div className="schedule-section">
               <h4>Schedule Tweets</h4>
+              <div className="section-description">
+                Set up automated tweet generation and posting at regular intervals.
+              </div>
               <div className="form-group">
-                <textarea
-                  name="prompt"
-                  placeholder="Custom prompt (optional)"
-                  value={scheduleConfig.prompt}
-                  onChange={handleScheduleConfigChange}
-                />
-                <input
-                  type="number"
-                  name="interval_hours"
-                  placeholder="Interval (hours)"
-                  min="0.0166667"
-                  max="24"
-                  step="0.0166667"
-                  value={scheduleConfig.interval_hours}
-                  onChange={handleScheduleConfigChange}
-                />
-                <button onClick={scheduleTweets}>Schedule Tweets</button>
+                <div className="input-group">
+                  <label>Custom Prompt</label>
+                  <div className="input-description">
+                    Guide the AI with specific topics or style preferences (optional)
+                  </div>
+                  <textarea
+                    name="prompt"
+                    placeholder="E.g., 'Write tweets about AI technology with a casual tone'"
+                    value={scheduleConfig.prompt}
+                    onChange={handleScheduleConfigChange}
+                  />
+                </div>
+                <div className="input-group">
+                  <label>Posting Interval</label>
+                  <div className="input-description">
+                    How often should new tweets be generated and posted (in hours)
+                  </div>
+                  <input
+                    type="number"
+                    name="interval_hours"
+                    placeholder="Interval (hours)"
+                    min="0.0166667"
+                    max="24"
+                    step="0.0166667"
+                    value={scheduleConfig.interval_hours}
+                    onChange={handleScheduleConfigChange}
+                  />
+                </div>
+                <button 
+                  onClick={scheduleTweets}
+                  disabled={isScheduling}
+                >
+                  {isScheduling ? 'Scheduling...' : 'Schedule Tweets'}
+                </button>
               </div>
             </div>
+
+            {actionsStatus && <div className="status-message">{actionsStatus}</div>}
           </div>
         </div>
       </div>
-
-      {status && <div className="status-message">{status}</div>}
     </div>
   );
 };
