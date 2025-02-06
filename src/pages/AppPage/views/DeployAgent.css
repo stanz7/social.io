@@ -398,3 +398,88 @@ button:disabled {
   opacity: 0.7;
   cursor: not-allowed;
 }
+
+.scheduled-jobs {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.jobs-list {
+  margin-top: 1rem;
+}
+
+.job-item {
+  background: var(--background-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.job-details {
+  flex: 1;
+}
+
+.job-interval {
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.job-prompt {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 400px;
+}
+
+.job-created {
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+}
+
+.delete-job {
+  background: var(--error-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+
+.delete-job:hover {
+  background: var(--error-color-dark);
+}
+
+.scheduled-jobs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.refresh-jobs-button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.refresh-jobs-button:hover {
+  background: var(--primary-color-dark);
+}
+
+.refresh-jobs-button:disabled {
+  background: var(--disabled-color);
+  cursor: not-allowed;
+}

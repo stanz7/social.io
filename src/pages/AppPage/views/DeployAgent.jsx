@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './DeployAgent.css';
 
 const BASE_URL = 'https://socialio-backend-d9b3a48643a2.herokuapp.com/';
@@ -23,6 +23,8 @@ const DeployAgent = () => {
   const [credentialsStatus, setCredentialsStatus] = useState('');
   const [actionsStatus, setActionsStatus] = useState('');
   const [isVerified, setIsVerified] = useState(false);
+  const [scheduledJobs, setScheduledJobs] = useState([]);
+  const [isLoadingJobs, setIsLoadingJobs] = useState(false);
 
   const handleCredsChange = (e) => {
     setTwitterCreds({
@@ -51,6 +53,7 @@ const DeployAgent = () => {
         setVerificationStatus(`Verified as @${data.username}`);
         setCredentialsStatus('');
         setActiveTab('actions');
+        fetchScheduledJobs();
       } else {
         setIsVerified(false);
         setCredentialsStatus(`Error: ${data.error}`);
@@ -93,7 +96,7 @@ const DeployAgent = () => {
     checkVerifiedAndExecute(async () => {
       setIsScheduling(true);
       try {
-        const response = await fetch(`${BASE_URL}/schedule_tweets`, {
+        const response = await fetch(`${BASE_URL}/schedule_tweet`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -110,6 +113,94 @@ const DeployAgent = () => {
       }
     });
   };
+
+  const fetchScheduledJobs = async () => {
+    if (!twitterCreds.api_key) return;
+    
+    setIsLoadingJobs(true);
+    try {
+      const response = await fetch(`${BASE_URL}/get_scheduled_jobs/${twitterCreds.api_key}`);
+      const data = await response.json();
+      setScheduledJobs(data.jobs || []);
+    } catch (error) {
+      console.error('Error fetching scheduled jobs:', error);
+    } finally {
+      setIsLoadingJobs(false);
+    }
+  };
+
+  const deleteJob = async (jobId) => {
+    try {
+      const response = await fetch(`${BASE_URL}/delete_scheduled_job/${jobId}`, {
+        method: 'DELETE'
+      });
+      const data = await response.json();
+      if (data.message) {
+        setScheduledJobs(jobs => jobs.filter(job => job.job_id !== jobId));
+        setActionsStatus('Job deleted successfully');
+      }
+    } catch (error) {
+      setActionsStatus(`Error deleting job: ${error.message}`);
+    }
+  };
+
+  useEffect(() => {
+    if (isVerified && twitterCreds.api_key) {
+      fetchScheduledJobs();
+    }
+  }, [isVerified, twitterCreds.api_key]);
+
+  useEffect(() => {
+    if (!isScheduling) {
+      fetchScheduledJobs();
+    }
+  }, [isScheduling]);
+
+  const ScheduledJobsList = () => (
+    <div className="scheduled-jobs">
+      <div className="scheduled-jobs-header">
+        <h4>Scheduled Jobs</h4>
+        <button 
+          className="refresh-jobs-button"
+          onClick={fetchScheduledJobs}
+          disabled={isLoadingJobs}
+        >
+          {isLoadingJobs ? 'Refreshing...' : 'Refresh Jobs'}
+        </button>
+      </div>
+      {isLoadingJobs ? (
+        <div>Loading scheduled jobs...</div>
+      ) : scheduledJobs.length > 0 ? (
+        <div className="jobs-list">
+          {scheduledJobs.map(job => (
+            <div key={job.job_id} className="job-item">
+              <div className="job-details">
+                <div className="job-interval">
+                  Posts every {job.interval_hours} hours
+                </div>
+                {job.prompt && (
+                  <div className="job-prompt">
+                    Prompt: {job.prompt}
+                  </div>
+                )}
+                <div className="job-created">
+                  Created: {new Date(job.created_at).toLocaleString()}
+                </div>
+              </div>
+              <button 
+                className="delete-job" 
+                onClick={() => deleteJob(job.job_id)}
+              >
+                Delete
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div>No scheduled jobs found</div>
+      )}
+    </div>
+  );
 
   return (
     <div className="deploy-agent">
@@ -231,7 +322,7 @@ const DeployAgent = () => {
                   </div>
                   <textarea
                     name="prompt"
-                    placeholder="E.g., 'Write tweets about AI technology with a casual tone'"
+                    placeholder="E.g., 'Leaving this empty will default to our preset prompt, which is to find outliers in the mindshare metrics'"
                     value={scheduleConfig.prompt}
                     onChange={handleScheduleConfigChange}
                   />
@@ -260,6 +351,8 @@ const DeployAgent = () => {
                 </button>
               </div>
             </div>
+
+            <ScheduledJobsList />
 
             {actionsStatus && <div className="status-message">{actionsStatus}</div>}
           </div>
