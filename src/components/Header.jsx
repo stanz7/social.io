@@ -10,7 +10,7 @@ const Header = () => {
         <h1 className="brand-name">SOCIAL.IO</h1>
       </Link>
       <a 
-        href="https://twitter.com/socialio_ai" 
+        href="https://twitter.com/socialdotio_" 
         target="_blank" 
         rel="noopener noreferrer"
         className="twitter-link"
