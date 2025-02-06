@@ -22,6 +22,7 @@ const DeployAgent = () => {
   const [isScheduling, setIsScheduling] = useState(false);
   const [credentialsStatus, setCredentialsStatus] = useState('');
   const [actionsStatus, setActionsStatus] = useState('');
+  const [isVerified, setIsVerified] = useState(false);
 
   const handleCredsChange = (e) => {
     setTwitterCreds({
@@ -46,52 +47,68 @@ const DeployAgent = () => {
       });
       const data = await response.json();
       if (data.success) {
+        setIsVerified(true);
         setVerificationStatus(`Verified as @${data.username}`);
         setCredentialsStatus('');
         setActiveTab('actions');
       } else {
+        setIsVerified(false);
         setCredentialsStatus(`Error: ${data.error}`);
       }
     } catch (error) {
+      setIsVerified(false);
       setCredentialsStatus(`Error: ${error.message}`);
     }
   };
 
-  const generateTweet = async () => {
-    setIsGenerating(true);
-    try {
-      const response = await fetch(`${BASE_URL}/generate_and_post_tweet`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(twitterCreds)
-      });
-      const data = await response.json();
-      setActionsStatus(data.success ? `Tweet posted: ${data.tweet}` : `Error: ${data.error}`);
-    } catch (error) {
-      setActionsStatus(`Error: ${error.message}`);
-    } finally {
-      setIsGenerating(false);
+  const checkVerifiedAndExecute = (action) => {
+    if (!isVerified) {
+      window.alert('Please verify your Twitter credentials before performing any actions');
+      setActiveTab('credentials');
+      return;
     }
+    action();
+  };
+
+  const generateTweet = async () => {
+    checkVerifiedAndExecute(async () => {
+      setIsGenerating(true);
+      try {
+        const response = await fetch(`${BASE_URL}/generate_and_post_tweet`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(twitterCreds)
+        });
+        const data = await response.json();
+        setActionsStatus(data.success ? `Tweet posted: ${data.tweet}` : `Error: ${data.error}`);
+      } catch (error) {
+        setActionsStatus(`Error: ${error.message}`);
+      } finally {
+        setIsGenerating(false);
+      }
+    });
   };
 
   const scheduleTweets = async () => {
-    setIsScheduling(true);
-    try {
-      const response = await fetch(`${BASE_URL}/schedule_tweets`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          twitter_creds: twitterCreds,
-          ...scheduleConfig
-        })
-      });
-      const data = await response.json();
-      setActionsStatus(data.success ? `Schedule created: ${data.job_id}` : `Error: ${data.error}`);
-    } catch (error) {
-      setActionsStatus(`Error: ${error.message}`);
-    } finally {
-      setIsScheduling(false);
-    }
+    checkVerifiedAndExecute(async () => {
+      setIsScheduling(true);
+      try {
+        const response = await fetch(`${BASE_URL}/schedule_tweets`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            twitter_creds: twitterCreds,
+            ...scheduleConfig
+          })
+        });
+        const data = await response.json();
+        setActionsStatus(data.success ? `Schedule created: ${data.job_id}` : `Error: ${data.error}`);
+      } catch (error) {
+        setActionsStatus(`Error: ${error.message}`);
+      } finally {
+        setIsScheduling(false);
+      }
+    });
   };
 
   return (
