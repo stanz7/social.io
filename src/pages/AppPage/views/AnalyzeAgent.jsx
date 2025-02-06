@@ -178,7 +178,7 @@ const AnalyzeAgent = () => {
         },
         {
           type: 'system',
-          content: 'Enter a contract address to analyze an agent...'
+          content: 'Enter a contract address of an ai agent on cookie.fun to analyze an agent...'
         }
       ]);
       setInput('');
