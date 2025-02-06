@@ -25,12 +25,13 @@ const DeployAgent = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [scheduledJobs, setScheduledJobs] = useState([]);
   const [isLoadingJobs, setIsLoadingJobs] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
-  const handleCredsChange = (e) => {
-    setTwitterCreds({
-      ...twitterCreds,
-      [e.target.name]: e.target.value
-    });
+  const handleCredsChange = (field, value) => {
+    setTwitterCreds(prev => ({
+      ...prev,
+      [field]: value
+    }));
   };
 
   const handleScheduleConfigChange = (e) => {
@@ -42,6 +43,7 @@ const DeployAgent = () => {
 
   const verifyCredentials = async () => {
     try {
+      setIsVerifying(true);
       const response = await fetch(`${BASE_URL}/verify_twitter_credentials`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -61,6 +63,8 @@ const DeployAgent = () => {
     } catch (error) {
       setIsVerified(false);
       setCredentialsStatus(`Error: ${error.message}`);
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -234,62 +238,54 @@ const DeployAgent = () => {
             <div className="form-group">
               <div className="input-group">
                 <label>API Key</label>
-                <input 
-                  type="text" 
-                  name="api_key" 
-                  placeholder="Enter your API key" 
-                  value={twitterCreds.api_key} 
-                  onChange={handleCredsChange} 
+                <input
+                  type="password"
+                  value={twitterCreds.api_key || ''}
+                  onChange={(e) => handleCredsChange('api_key', e.target.value)}
+                  placeholder="Enter API Key"
                 />
               </div>
-
               <div className="input-group">
                 <label>API Secret</label>
-                <input 
-                  type="text" 
-                  name="api_secret" 
-                  placeholder="Enter your API secret" 
-                  value={twitterCreds.api_secret} 
-                  onChange={handleCredsChange} 
+                <input
+                  type="password"
+                  value={twitterCreds.api_secret || ''}
+                  onChange={(e) => handleCredsChange('api_secret', e.target.value)}
+                  placeholder="Enter API Secret"
                 />
               </div>
-
               <div className="input-group">
                 <label>Access Token</label>
-                <input 
-                  type="text" 
-                  name="access_token" 
-                  placeholder="Enter your access token" 
-                  value={twitterCreds.access_token} 
-                  onChange={handleCredsChange} 
+                <input
+                  type="password"
+                  value={twitterCreds.access_token || ''}
+                  onChange={(e) => handleCredsChange('access_token', e.target.value)}
+                  placeholder="Enter Access Token"
                 />
               </div>
-
               <div className="input-group">
                 <label>Access Secret</label>
-                <input 
-                  type="text" 
-                  name="access_secret" 
-                  placeholder="Enter your access token secret" 
-                  value={twitterCreds.access_secret} 
-                  onChange={handleCredsChange} 
+                <input
+                  type="password"
+                  value={twitterCreds.access_secret || ''}
+                  onChange={(e) => handleCredsChange('access_secret', e.target.value)}
+                  placeholder="Enter Access Secret"
                 />
               </div>
-
               <div className="input-group">
                 <label>Bearer Token</label>
-                <input 
-                  type="text" 
-                  name="bearer_token" 
-                  placeholder="Enter your bearer token" 
-                  value={twitterCreds.bearer_token} 
-                  onChange={handleCredsChange} 
+                <input
+                  type="password"
+                  value={twitterCreds.bearer_token || ''}
+                  onChange={(e) => handleCredsChange('bearer_token', e.target.value)}
+                  placeholder="Enter Bearer Token"
                 />
               </div>
-
-              <button onClick={verifyCredentials}>Verify & Continue</button>
+              <button onClick={verifyCredentials} disabled={isVerifying}>
+                {isVerifying ? 'Verifying...' : 'Verify Credentials'}
+              </button>
+              {credentialsStatus && <div className="status-message">{credentialsStatus}</div>}
             </div>
-            {credentialsStatus && <div className="status-message">{credentialsStatus}</div>}
           </div>
         </div>
 
