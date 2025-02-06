@@ -37,3 +37,24 @@
   .brand-link:hover {
     opacity: 0.8;
   }
+
+  .social-links {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .social-link {
+    color: var(--text-primary);
+    transition: opacity 0.2s ease;
+  }
+
+  .social-link:hover {
+    opacity: 0.8;
+  }
+
+  .gitbook-logo {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+  }
