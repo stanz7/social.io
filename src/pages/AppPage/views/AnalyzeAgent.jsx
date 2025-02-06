@@ -72,7 +72,17 @@ const AnalyzeAgent = () => {
   };
 
   const renderMetricsCard = (data) => {
-    if (!data?.contract_data?.ok) {
+    if (data === undefined) {
+      return (
+        <div className="metrics-card error">
+          <div className="metrics-header">
+            <h2>Error Loading Agent Data, please reference agents on cookie.fun</h2>
+            <p>{data?.error || 'Unable to fetch agent metrics'}</p>
+          </div>
+        </div>
+      );
+    }
+    if (!data) {
       return (
         <div className="metrics-card error">
           <div className="metrics-header">
